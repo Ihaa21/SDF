@@ -19,8 +19,6 @@ struct demo_state
     // NOTE: Samplers
     VkSampler PointSampler;
     VkSampler LinearSampler;
-    
-    camera Camera;
 
     // NOTE: Render Target Entries
     render_target_entry SwapChainEntry;

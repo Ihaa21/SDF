@@ -22,7 +22,21 @@ DEMO_INIT(Init)
 
     // NOTE: Init Vulkan
     {
-        VkInit(VulkanLib, hInstance, WindowHandle, &DemoState->Arena, &DemoState->TempArena, WindowWidth, WindowHeight, MegaBytes(100));
+        {
+            const char* DeviceExtensions[] =
+                {
+                    "VK_EXT_shader_viewport_index_layer",
+                };
+            
+            render_init_params InitParams = {};
+            InitParams.ValidationEnabled = true;
+            InitParams.WindowWidth = WindowWidth;
+            InitParams.WindowHeight = WindowHeight;
+            InitParams.StagingBufferSize = MegaBytes(400);
+            InitParams.DeviceExtensionCount = ArrayCount(DeviceExtensions);
+            InitParams.DeviceExtensions = DeviceExtensions;
+            VkInit(VulkanLib, hInstance, WindowHandle, &DemoState->Arena, &DemoState->TempArena, InitParams);
+        }
         
         // NOTE: Init descriptor pool
         {
@@ -71,13 +85,10 @@ DEMO_INIT(Init)
         CreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
         VkCheckResult(vkCreateSampler(RenderState->Device, &CreateInfo, 0, &DemoState->LinearSampler));
     }
-    
-    DemoState->Camera = CameraFpsCreate(V3(0, 0, 0), V3(0, 0, 1), f32(RenderState->WindowWidth / RenderState->WindowHeight),
-                                       0.001f, 1000.0f, 90.0f, 1.0f, 0.01f);
-        
+            
     // NOTE: Init render target entries
     DemoState->SwapChainEntry = RenderTargetSwapChainEntryCreate(RenderState->WindowWidth, RenderState->WindowHeight,
-                                                                RenderState->SwapChainFormat);
+                                                                 RenderState->SwapChainFormat);
 
     // NOTE: SDF RT
     {
@@ -124,6 +135,20 @@ DEMO_INIT(Init)
     }
 }
 
+DEMO_DESTROY(Destroy)
+{
+}
+
+DEMO_SWAPCHAIN_CHANGE(SwapChainChange)
+{
+    VkCheckResult(vkDeviceWaitIdle(RenderState->Device));
+    VkSwapChainReCreate(&DemoState->TempArena, WindowWidth, WindowHeight, RenderState->PresentMode);
+
+    DemoState->SwapChainEntry.Width = RenderState->WindowWidth;
+    DemoState->SwapChainEntry.Height = RenderState->WindowHeight;
+
+}
+
 DEMO_CODE_RELOAD(CodeReload)
 {
     linear_arena Arena = LinearArenaCreate(ProgramMemory, ProgramMemorySize);
@@ -144,8 +169,6 @@ DEMO_MAIN_LOOP(MainLoop)
                                         VK_NULL_HANDLE, &ImageIndex));
     DemoState->SwapChainEntry.View = RenderState->SwapChainViews[ImageIndex];
 
-    CameraUpdate(&DemoState->Camera, CurrInput, PrevInput);
-
     vk_commands Commands = RenderState->Commands;
     VkCommandsBegin(RenderState->Device, Commands);
 
@@ -156,19 +179,10 @@ DEMO_MAIN_LOOP(MainLoop)
 
     // NOTE: Upload uniforms
     {
-        // NOTE: Upload camera
         {
-            camera_input* Data = VkTransferPushBufferWriteStruct(&RenderState->TransferManager, DemoState->Camera.GpuBuffer, camera_input, 1,
-                                                                 BarrierMask(VkAccessFlagBits(0), VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT),
-                                                                 BarrierMask(VK_ACCESS_UNIFORM_READ_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT));
-            *Data = {};
-            Data->CameraPos = DemoState->Camera.Pos;
-        }
-
-        {
-            sdf_input* Data = VkTransferPushBufferWriteStruct(&RenderState->TransferManager, DemoState->SdfInputBuffer, sdf_input, 1,
-                                                              BarrierMask(VkAccessFlagBits(0), VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT),
-                                                              BarrierMask(VK_ACCESS_UNIFORM_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT));
+            sdf_input* Data = VkTransferPushWriteStruct(&RenderState->TransferManager, DemoState->SdfInputBuffer, sdf_input,
+                                                        BarrierMask(VkAccessFlagBits(0), VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT),
+                                                        BarrierMask(VK_ACCESS_UNIFORM_READ_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT));
             *Data = {};
             Data->Time = DemoState->TotalProgramTime;
             Data->RenderWidth = f32(RenderState->WindowWidth);

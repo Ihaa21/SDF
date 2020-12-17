@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30011.22
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{911E67C6-3D85-4FCE-B560-20A9C3E3FF48}") = "sdf_demo", "sdf_demo.exe", "{38B3E8AA-D5C8-4275-8CF1-0CC61AB1E1A2}"
 	ProjectSection(DebuggerProjectSystem) = preProject
 		PortSupplier = 00000000-0000-0000-0000-000000000000
-		Executable = C:\Code\Demos\Sdf\build_win32\sdf_demo.exe
+		Executable = D:\Code\Demos\Sdf\build_win32\sdf_demo.exe
 		RemoteMachine = MSDNDESKTOP-P0S
-		StartingDirectory = C:\Code\Demos\Sdf\data
+		StartingDirectory = D:\Code\Demos\Sdf\data
 		Environment = Default
 		LaunchingEngine = 00000000-0000-0000-0000-000000000000
 		UseLegacyDebugEngines = No
@@ -21,7 +21,7 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{38B3E8AA-D5C8-4275-8CF1-0CC61AB1E1A2}.Release|x64.ActiveCfg = Release|x64
+		{38B3E8AA-D5C8-4275-8CF1-0CC61AB1E1A2}.Release|x64.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

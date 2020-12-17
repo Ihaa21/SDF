@@ -2,7 +2,7 @@
 
 set CodeDir=..\code
 set DataDir=..\data
-set LibsDir=C:\Code\Libs
+set LibsDir=D:\Code\Libs
 set OutputDir=..\build_win32
 set VulkanIncludeDir="C:\VulkanSDK\1.2.135.0\Include\vulkan"
 set VulkanBinDir="C:\VulkanSDK\1.2.135.0\Bin"
@@ -30,7 +30,7 @@ REM %DxcDir%\dxc.exe -spirv -T cs_6_0 -E main -fspv-target-env=vulkan1.1 -Fo ..\
 
 REM 64-bit build
 echo WAITING FOR PDB > lock.tmp
-cl %CommonCompilerFlags% %CodeDir%\sdf_demo.cpp -Fmsdf_demo.map -LD /link %CommonLinkerFlags% -incremental:no -opt:ref -PDB:sdf_demo_%random%.pdb -EXPORT:Init -EXPORT:CodeReload -EXPORT:MainLoop
+cl %CommonCompilerFlags% %CodeDir%\sdf_demo.cpp -Fmsdf_demo.map -LD /link %CommonLinkerFlags% -incremental:no -opt:ref -PDB:sdf_demo_%random%.pdb -EXPORT:Init -EXPORT:Destroy -EXPORT:SwapChainChange -EXPORT:CodeReload -EXPORT:MainLoop
 del lock.tmp
 call cl %CommonCompilerFlags% -DDLL_NAME=sdf_demo -Fesdf_demo.exe %LibsDir%\framework_vulkan\win32_main.cpp -Fmsdf_demo.map /link %CommonLinkerFlags%
 
